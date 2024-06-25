@@ -24,9 +24,9 @@ FinalScores_wide <- FinalScores %>%
    mutate(nm1 = rowid(Subject.ID)) %>%
    pivot_wider(names_from = nm1, names_sort = TRUE, values_from = c(Finalnames))
 
-FinalScoresNames <- c(names(FinalScores_wide))
-FinalScoresNames <- FinalScoresNames[which(grepl("Inst_", FinalScoresNames, fixed = TRUE) == FALSE & grepl("ItmCnt", FinalScoresNames, fixed = TRUE) == FALSE)]
-FinalScores_wide <- FinalScores_wide[FinalScoresNames]
+FinalScores_wide <- FinalScores_wide[names(FinalScores_wide)[which(grepl("Inst_", names(FinalScores_wide), fixed = TRUE) == FALSE & grepl("ItmCnt", names(FinalScores_wide), fixed = TRUE) == FALSE)]]
+
+FinalScores_wide <- cbind(FinalScores_wide[1], FinalScores_wide[-1][order(as.numeric(regmatches(names(FinalScores_wide)[-1], regexpr("\\d+", names(FinalScores_wide)[-1]))))])
 ```
 
 ``` r
@@ -35,7 +35,6 @@ Intermediatedata1 <- Intermediatedata[1:16]
 Intermediatedata1$ItemID <- NULL
 Intermediatedata1$Locale <- NULL
 Intermediatedata1$DataType <- NULL
-Intermediatedatanames <- (names(Intermediatedata1))[2:13]
 Intermediatedata1 <- Intermediatedata1[Intermediatedata1$Inst %in% NamesFinal, ]
 Intermediatedata1 <- Intermediatedata1[order(Intermediatedata1$Inst), ]
 Intermediatedata1 <- Intermediatedata1 %>%
@@ -47,13 +46,14 @@ Intermediatedata1 <- Intermediatedata1 %>% arrange(sub.ID)
 Intermediatedata_wide <- Intermediatedata1 %>%
   group_by(sub.ID) %>%
    mutate(nm1 = rowid(sub.ID)) %>%
-   pivot_wider(names_from = nm1, names_sort = TRUE, values_from = c(Intermediatedatanames))
+   pivot_wider(names_from = nm1, names_sort = TRUE, values_from = (names(Intermediatedata1))[2:13])
 
 Intermediatedata_wide <- cbind(Intermediatedata_wide[1], Intermediatedata_wide[-1][order(as.numeric(regmatches(names(Intermediatedata_wide)[-1], regexpr("\\d+", names(Intermediatedata_wide)[-1]))))])
 
 ScoresIntWide <- Intermediatedata_wide[which(grepl("^Score_", names(Intermediatedata_wide), fixed = FALSE) == TRUE | grepl("Inst_", names(Intermediatedata_wide), fixed = TRUE) == TRUE)]
 
 ScoresIntWideS <- ScoresIntWide[which(grepl("^Score_", names(ScoresIntWide), fixed = FALSE) == TRUE)]
+ScoresIntWideS <- ScoresIntWideS %>% replace(is.na(.), 0)
 ```
 
 ``` r
@@ -79,6 +79,14 @@ SelfEfficacy <- ScoresIntWideS[685:694]
 ```
 
 ``` r
+split_final <- split(FinalScores, f = FinalScores$Inst)
+names(split_final) <- c("angeraffect", "angerhostility", "angerphysagg", "cardsort", "emotionalsupp", "fearaffect", "fearsoma", "flanker", "friendship", "genlife", "instrumental", "loneliness", "meaningpurpose", "hostility", "rejection", "stress", "posaffect", "sadness", "selfeff")
+list2env(split_final, envir=.GlobalEnv)
+```
+
+    ## <environment: R_GlobalEnv>
+
+``` r
 FinalScoresDF <- read.csv("~/NIH_Data/NIH_assessment_scores.csv", quote = "")
 tasknames <- c("NIH Toolbox Flanker Inhibitory Control and Attention Test Age 12+ v2.1", "NIH Toolbox Dimensional Change Card Sort Test Age 12+ v2.1")
 FinalScoresDF <- FinalScoresDF[FinalScoresDF$Inst %in% tasknames, ]
@@ -90,127 +98,6 @@ cardsort <- cardsort[which(grepl("Score", names(cardsort), fixed = TRUE) == TRUE
 cardsort <- cardsort %>% select_if(~ !all(is.na(.)))
 flanker <- flanker[which(grepl("Score", names(flanker), fixed = TRUE) == TRUE | grepl("National", names(flanker), fixed = TRUE) == TRUE)]
 flanker <- flanker %>% select_if(~ !all(is.na(.)))
-```
-
-``` r
-angeraffectnames <- FinalScoresNames[which(grepl("_1$", FinalScoresNames, fixed = FALSE) == TRUE)]
-angeraffect <- FinalScores_wide[angeraffectnames]
-angerhostilitynames <- FinalScoresNames[which(grepl("_2$", FinalScoresNames, fixed = FALSE) == TRUE)]
-angerhostility <- FinalScores_wide[angerhostilitynames]
-angerphysaggnames <- FinalScoresNames[which(grepl("_3$", FinalScoresNames, fixed = FALSE) == TRUE)]
-angerphysagg <- FinalScores_wide[angerphysaggnames]
-emotionalsuppnames <- FinalScoresNames[which(grepl("_5$", FinalScoresNames, fixed = FALSE) == TRUE)]
-emotionalsupp <- FinalScores_wide[emotionalsuppnames]
-fearaffectnames <- FinalScoresNames[which(grepl("_6$", FinalScoresNames, fixed = FALSE) == TRUE)]
-fearaffect <- FinalScores_wide[fearaffectnames]
-fearsomanames <- FinalScoresNames[which(grepl("_7$", FinalScoresNames, fixed = FALSE) == TRUE)]
-fearsoma <- FinalScores_wide[fearsomanames]
-friendshipnames <- FinalScoresNames[which(grepl("_9$", FinalScoresNames, fixed = FALSE) == TRUE)]
-friendship <- FinalScores_wide[friendshipnames]
-genlifenames <- FinalScoresNames[which(grepl("_10$", FinalScoresNames, fixed = FALSE) == TRUE)]
-genlife <- FinalScores_wide[genlifenames]
-instrumentalnames <- FinalScoresNames[which(grepl("_11$", FinalScoresNames, fixed = FALSE) == TRUE)]
-instrumental <- FinalScores_wide[instrumentalnames]
-lonelinessnames <- FinalScoresNames[which(grepl("_12$", FinalScoresNames, fixed = FALSE) == TRUE)]
-loneliness <- FinalScores_wide[lonelinessnames]
-meaningpurposenames <- FinalScoresNames[which(grepl("_13$", FinalScoresNames, fixed = FALSE) == TRUE)]
-meaningpurpose <- FinalScores_wide[meaningpurposenames]
-hostilitynames <- FinalScoresNames[which(grepl("_14$", FinalScoresNames, fixed = FALSE) == TRUE)]
-hostility <- FinalScores_wide[hostilitynames]
-rejectionnames <- FinalScoresNames[which(grepl("_15$", FinalScoresNames, fixed = FALSE) == TRUE)]
-rejection <- FinalScores_wide[rejectionnames]
-stressnames <- FinalScoresNames[which(grepl("_16$", FinalScoresNames, fixed = FALSE) == TRUE)]
-stress <- FinalScores_wide[stressnames]
-posaffectnames <- FinalScoresNames[which(grepl("_17$", FinalScoresNames, fixed = FALSE) == TRUE)]
-posaffect <- FinalScores_wide[posaffectnames]
-sadnessnames <- FinalScoresNames[which(grepl("_18$", FinalScoresNames, fixed = FALSE) == TRUE)]
-sadness <- FinalScores_wide[sadnessnames]
-selfeffnames <- FinalScoresNames[which(grepl("_19$", FinalScoresNames, fixed = FALSE) == TRUE)]
-selfeff <- FinalScores_wide[selfeffnames]
-```
-
-``` r
-AngerAffect <- AngerAffect %>% replace(is.na(.), 0)
-AngerHostility <- AngerHostility %>% replace(is.na(.), 0)
-AngerPhysicalAggression <- AngerPhysicalAggression %>% replace(is.na(.), 0)
-Card_Sort <- Card_Sort %>% replace(is.na(.), 0)
-EmotionalSupport <- EmotionalSupport %>% replace(is.na(.), 0)
-FearAffect <- FearAffect %>% replace(is.na(.), 0)
-FearSomaticArousal <- FearSomaticArousal %>% replace(is.na(.), 0)
-Flanker_Task <- Flanker_Task %>% replace(is.na(.), 0)
-Friendship <- Friendship %>% replace(is.na(.), 0)
-GenLifeSatisfaction <- GenLifeSatisfaction %>% replace(is.na(.), 0)
-InstrumentalSupport <- InstrumentalSupport %>% replace(is.na(.), 0)
-Loneliness <- Loneliness %>% replace(is.na(.), 0)
-MeaningPurpose <- MeaningPurpose %>% replace(is.na(.), 0)
-PerceivedHostility <- PerceivedHostility %>% replace(is.na(.), 0)
-PerceivedRejection <- PerceivedRejection %>% replace(is.na(.), 0)
-PerceivedStress <- PerceivedStress %>% replace(is.na(.), 0)
-PositiveAffect <- PositiveAffect %>% replace(is.na(.), 0)
-Sadness <- Sadness %>% replace(is.na(.), 0)
-SelfEfficacy <- SelfEfficacy %>% replace(is.na(.), 0)
-```
-
-``` r
-Make_subject_name <- function(x){
-  name = deparse(substitute(x))
-   for (u in 1:nrow(x)) {
-    assign(paste0(name, "sub_", u, sep = ""), value = as.numeric(x[u,]), envir = .GlobalEnv)
-}
-}
-
-Make_subject_name(PositiveAffect)
-Make_subject_name(GenLifeSatisfaction)
-Make_subject_name(MeaningPurpose)
-Make_subject_name(SelfEfficacy)
-Make_subject_name(PerceivedStress)
-Make_subject_name(FearAffect)
-Make_subject_name(FearSomaticArousal)
-Make_subject_name(Sadness)
-Make_subject_name(AngerAffect)
-Make_subject_name(AngerPhysicalAggression)
-Make_subject_name(EmotionalSupport)
-Make_subject_name(InstrumentalSupport)
-Make_subject_name(Friendship)
-Make_subject_name(Loneliness)
-Make_subject_name(PerceivedRejection)
-Make_subject_name(PerceivedHostility)
-Make_subject_name(AngerHostility)
-Make_subject_name(Flanker_Task)
-Make_subject_name(Card_Sort)
-```
-
-``` r
-Make_summary <- function(x){
-  name = deparse(substitute(x))
-   for (u in 1:nrow(x)) {
-    assign(paste0(name, "sub_", u, sep = ""), value = as.numeric(x[u,]), envir = .GlobalEnv)
-}
-}
-
-Make_summary(angeraffect)
-Make_summary(angerhostility)
-Make_summary(angerphysagg)
-Make_summary(emotionalsupp)
-Make_summary(fearaffect)
-Make_summary(fearsoma)
-Make_summary(friendship)
-Make_summary(genlife)
-Make_summary(instrumental)
-Make_summary(loneliness)
-Make_summary(meaningpurpose)
-Make_summary(hostility)
-Make_summary(rejection)
-Make_summary(stress)
-Make_summary(posaffect)
-Make_summary(sadness)
-Make_summary(selfeff)
-Make_summary(flanker)
-Make_summary(cardsort)
-```
-
-``` r
-FinalScores_wide <- cbind(FinalScores_wide[1], FinalScores_wide[-1][order(as.numeric(regmatches(names(FinalScores_wide)[-1], regexpr("\\d+", names(FinalScores_wide)[-1]))))])
 ```
 
 ``` r
@@ -231,6 +118,42 @@ Demographics$Movie_watched <- as.integer(Demographics$Movie_watched)
 Demographics$Ethnicity <- factor(Demographics$Ethnicity, levels = unique(Demographics$Ethnicity))
 Demographics$Ethnicity <- as.integer(Demographics$Ethnicity)
 Demographics <- Demographics %>% replace(is.na(.), 0)
+```
 
-Make_summary(Demographics)
+``` r
+library(stats)
+
+atlist <- c(Flanker_Task, Card_Sort)
+fatlist <- c(flanker, cardsort)
+emlist <- c(PositiveAffect, GenLifeSatisfaction, MeaningPurpose, SelfEfficacy, PerceivedStress, FearAffect, FearSomaticArousal, Sadness, AngerAffect, AngerPhysicalAggression)
+femlist <- c(posaffect, genlife, meaningpurpose, selfeff, stress, fearaffect, fearsoma, sadness, angeraffect, angerphysagg)
+solist <- c(EmotionalSupport, InstrumentalSupport, Friendship, Loneliness, PerceivedRejection, PerceivedHostility, AngerHostility)
+fsolist <- c(emotionalsupp, instrumental, friendship, loneliness, rejection, hostility, angerhostility)
+```
+
+``` r
+distAT <- data.matrix(dist(as.data.frame(atlist)))
+distATF <- data.matrix(dist(as.data.frame(fatlist[which(grepl("^Computed.Score", names(fatlist), fixed = FALSE) == TRUE)])))
+
+distET <- data.matrix(dist(as.data.frame(emlist)))
+distETF <- data.matrix(dist(as.data.frame(femlist[which(grepl("^TScore_", names(femlist), fixed = FALSE) == TRUE)])))
+
+distSO <- data.matrix(dist(as.data.frame(solist)))
+distSOF <- data.matrix(dist(as.data.frame(fsolist[which(grepl("^TScore_", names(fsolist), fixed = FALSE) == TRUE)])))
+
+distDE <- data.matrix(dist(Demographics[2:7]))
+distAG <- data.matrix(dist(Demographics[2]))
+distGE <- data.matrix(dist(Demographics[3]))
+distEDU <- data.matrix(dist(Demographics[5:6]))
+```
+
+``` r
+Make_summary <- function(x){
+  name = deparse(substitute(x))
+   for (u in 1:nrow(x)) {
+    assign(paste0(name, "sub_", u, sep = ""), value = as.numeric(x[u,]), envir = .GlobalEnv)
+}
+}
+
+fulllist <- c(Flanker_Task, Card_Sort, flanker, cardsort, PositiveAffect, GenLifeSatisfaction, MeaningPurpose, SelfEfficacy, PerceivedStress, FearAffect, FearSomaticArousal, Sadness, AngerAffect, AngerPhysicalAggression, posaffect, genlife, meaningpurpose, selfeff, stress, fearaffect, fearsoma, sadness, angeraffect, angerphysagg, EmotionalSupport, InstrumentalSupport, Friendship, Loneliness, PerceivedRejection, PerceivedHostility, AngerHostility, emotionalsupp, instrumental, friendship, loneliness, rejection, hostility, angerhostility)
 ```
