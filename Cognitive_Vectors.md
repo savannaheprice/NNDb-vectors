@@ -136,10 +136,10 @@ distAT <- data.matrix(dist(as.data.frame(atlist)))
 distATF <- data.matrix(dist(as.data.frame(fatlist[which(grepl("^Computed.Score", names(fatlist), fixed = FALSE) == TRUE)])))
 
 distET <- data.matrix(dist(as.data.frame(emlist)))
-distETF <- data.matrix(dist(as.data.frame(femlist[which(grepl("^TScore_", names(femlist), fixed = FALSE) == TRUE)])))
+distETF <- data.matrix(dist(as.data.frame(femlist[which(grepl("^TScore", names(femlist), fixed = FALSE) == TRUE)])))
 
 distSO <- data.matrix(dist(as.data.frame(solist)))
-distSOF <- data.matrix(dist(as.data.frame(fsolist[which(grepl("^TScore_", names(fsolist), fixed = FALSE) == TRUE)])))
+distSOF <- data.matrix(dist(as.data.frame(fsolist[which(grepl("^TScore", names(fsolist), fixed = FALSE) == TRUE)])))
 
 distDE <- data.matrix(dist(Demographics[2:7]))
 distAG <- data.matrix(dist(Demographics[2]))
